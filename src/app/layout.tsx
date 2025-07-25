@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "ConnectSphere",
-  description: "A modern social network.",
+  title: "GTMR Chat",
+  description: "A modern chat application.",
 };
 
 export default function RootLayout({

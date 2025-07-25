@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ConnectSphereLogo } from "./ConnectSphereLogo";
+import { GtmrChatLogo } from "./GtmrChatLogo";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -21,9 +21,9 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 text-primary">
-            <ConnectSphereLogo className="h-8 w-8" />
+            <GtmrChatLogo className="h-8 w-8" />
             <span className="text-xl font-bold text-foreground">
-              ConnectSphere
+              GTMR Chat
             </span>
           </Link>
 

@@ -16,7 +16,7 @@ const SuggestContentInputSchema = z.object({
   userActivity: z
     .string()
     .describe(
-      'A description of the user history of activity within the ConnectSphere application.'
+      'A description of the user history of activity within the GTMR Chat application.'
     ),
 });
 export type SuggestContentInput = z.infer<typeof SuggestContentInputSchema>;

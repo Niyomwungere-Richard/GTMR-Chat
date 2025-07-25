@@ -9,15 +9,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ConnectSphereLogo } from "@/components/ConnectSphereLogo";
+import { GtmrChatLogo } from "@/components/GtmrChatLogo";
 
 export default function LoginPage() {
   return (
     <div className="flex items-center justify-center py-12">
       <Card className="mx-auto max-w-sm">
         <CardHeader className="text-center">
-            <ConnectSphereLogo className="mx-auto h-12 w-12 text-primary mb-2" />
-          <CardTitle className="text-2xl">Login to ConnectSphere</CardTitle>
+            <GtmrChatLogo className="mx-auto h-12 w-12 text-primary mb-2" />
+          <CardTitle className="text-2xl">Login to GTMR Chat</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
