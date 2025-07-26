@@ -1,3 +1,5 @@
+"use client";
+
 import PrivateRoute from "@/components/auth/PrivateRoute";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,10 +14,30 @@ import { MessageSquare, Users, Home, User } from "lucide-react";
 import CreatePostForm from "@/components/CreatePostForm";
 import PostCard from "@/components/PostCard";
 import ContentSuggestions from "@/components/ContentSuggestions";
-import { mockPosts, mockUsers } from "@/lib/data";
+import { mockUsers } from "@/lib/data";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { Post as PostType } from "@/lib/types";
+import { getPosts } from "@/lib/firestoreService";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomePage() {
-  const currentUser = mockUsers[0];
+  const { currentUser } = useAuth();
+  const [posts, setPosts] = useState<PostType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // This is a placeholder until we have real user profiles in Firestore
+  const displayUser = mockUsers.find(u => u.id === currentUser?.uid) || mockUsers[0];
+
+  useEffect(() => {
+    setLoading(true);
+    const unsubscribe = getPosts((newPosts) => {
+      setPosts(newPosts);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
 
   return (
     <PrivateRoute>
@@ -25,11 +47,11 @@ export default function HomePage() {
           <Card>
             <CardContent className="p-4 flex flex-col items-center text-center">
               <Avatar className="w-20 h-20 mb-4">
-                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={displayUser.avatar} alt={displayUser.name} />
+                <AvatarFallback>{displayUser.name.charAt(0)}</AvatarFallback>
               </Avatar>
-              <h2 className="text-xl font-bold">{currentUser.name}</h2>
-              <p className="text-sm text-muted-foreground">@{currentUser.handle}</p>
+              <h2 className="text-xl font-bold">{displayUser.name}</h2>
+              <p className="text-sm text-muted-foreground">@{displayUser.handle}</p>
               <Button variant="secondary" size="sm" className="mt-4 w-full" asChild>
                 <Link href="/profile">View Profile</Link>
               </Button>
@@ -54,11 +76,19 @@ export default function HomePage() {
 
         {/* Main Content */}
         <main className="lg:col-span-2 space-y-6">
-          <CreatePostForm user={currentUser} />
+          <CreatePostForm user={displayUser} />
           <div className="space-y-6">
-            {mockPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
+            {loading ? (
+              <>
+                <Skeleton className="h-40 w-full" />
+                <Skeleton className="h-40 w-full" />
+                <Skeleton className="h-40 w-full" />
+              </>
+            ) : (
+              posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))
+            )}
           </div>
         </main>
 

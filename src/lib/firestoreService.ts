@@ -9,8 +9,9 @@ import {
   orderBy,
   doc,
   getDoc,
+  Timestamp,
 } from "firebase/firestore";
-import type { Conversation, Message, User } from "./types";
+import type { Conversation, Message, User, Post } from "./types";
 import { mockUsers } from "./data"; // Placeholder for user data
 
 // This is a placeholder function to get user details
@@ -76,9 +77,47 @@ export const getMessages = (
 }
 
 export const sendMessage = async (conversationId: string, senderId: string, content: string) => {
-    await addDoc(collection(db, "conversations", conversationId, "messages"), {
+    const messagesCollection = collection(db, "conversations", conversationId, "messages");
+    await addDoc(messagesCollection, {
         senderId,
         content,
         timestamp: serverTimestamp()
+    });
+}
+
+export const createPost = async (userId: string, content: string, imageUrl?: string) => {
+    const postsCollection = collection(db, "posts");
+    await addDoc(postsCollection, {
+        userId,
+        content,
+        imageUrl: imageUrl || null,
+        timestamp: serverTimestamp(),
+        comments: [],
+        reactions: []
+    });
+};
+
+export const getPosts = (callback: (posts: Post[]) => void) => {
+    const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+
+    return onSnapshot(q, async (querySnapshot) => {
+        const posts: Post[] = [];
+        for (const doc of querySnapshot.docs) {
+            const data = doc.data();
+            const user = await getUserDetails(data.userId);
+
+            if (user) {
+                posts.push({
+                    id: doc.id,
+                    ...data,
+                    user: user,
+                    timestamp: data.timestamp,
+                    // These would be populated from subcollections in a real app
+                    comments: [], 
+                    reactions: []
+                } as Post);
+            }
+        }
+        callback(posts);
     });
 }

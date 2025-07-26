@@ -9,29 +9,32 @@ export type User = {
 
 export type Comment = {
   id: string;
-  user: User;
+  userId: string;
+  user?: User;
   content: string;
   timestamp: Timestamp;
 };
 
 export type Reaction = {
   id: string;
-  user: User;
+  userId: string;
+  user?: User;
   type: "like" | "love" | "haha" | "wow" | "sad" | "angry";
 };
 
 export type Post = {
   id: string;
-  user: User;
+  userId: string;
+  user: User; // Populated after fetching
   content: string;
   imageUrl?: string;
-  timestamp: string; // Keeping as string for mock, can be Timestamp for firestore
-  comments: Comment[];
-  reactions: Reaction[];
+  timestamp: Timestamp;
+  comments: Comment[]; // These would be fetched from a subcollection
+  reactions: Reaction[]; // These would be fetched from a subcollection
 };
 
 export type Message = {
-  id: string;
+  id:string;
   senderId: string;
   content: string;
   timestamp: Timestamp;

@@ -4,10 +4,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { MessageSquare, ThumbsUp, MoreHorizontal, Heart, Smile } from "lucide-react";
+import { formatDistanceToNow } from 'date-fns';
 
 type PostCardProps = {
   post: Post;
 };
+
+function formatTimestamp(timestamp: any) {
+    if (!timestamp) return "";
+    return formatDistanceToNow(timestamp.toDate(), { addSuffix: true });
+}
+
 
 export default function PostCard({ post }: PostCardProps) {
   return (
@@ -21,7 +28,7 @@ export default function PostCard({ post }: PostCardProps) {
             </Avatar>
             <div>
               <p className="font-semibold">{post.user.name}</p>
-              <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+              <p className="text-xs text-muted-foreground">{formatTimestamp(post.timestamp)}</p>
             </div>
           </div>
           <Button variant="ghost" size="icon">
