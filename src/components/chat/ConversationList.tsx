@@ -1,3 +1,4 @@
+
 import type { Conversation } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -35,7 +36,7 @@ export default function ConversationList({
   }
 
   return (
-    <div className="w-1/3 md:w-1/4 border-r h-full flex flex-col">
+    <div className="w-full md:w-1/3 lg:w-1/4 border-r h-full flex flex-col">
       <div className="p-4 border-b">
         <h2 className="text-xl font-bold">Messages</h2>
         <div className="relative mt-4">

@@ -19,30 +19,42 @@ import { mockUsers } from "@/lib/data";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { Post as PostType } from "@/lib/types";
-import { getPosts } from "@/lib/firestoreService";
+import { getPosts, getUserPosts } from "@/lib/firestoreService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 
 export default function HomePage() {
   const { currentUser } = useAuth();
   const [allPosts, setAllPosts] = useState<PostType[]>([]);
+  const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
   // This is a placeholder until we have real user profiles in Firestore
   const displayUser = mockUsers.find(u => u.id === currentUser?.uid) || mockUsers[0];
-  const userPosts = allPosts.filter(p => p.userId === currentUser?.uid);
-
+  
   useEffect(() => {
     setLoading(true);
-    const unsubscribe = getPosts((newPosts) => {
+    const unsubscribePosts = getPosts((newPosts) => {
       setAllPosts(newPosts);
-      setFilteredPosts(newPosts);
+      setFilteredPosts(newPosts); // Initially show all posts
       setLoading(false);
     });
-    return () => unsubscribe();
-  }, []);
+
+    let unsubscribeUserPosts: () => void;
+    if (currentUser) {
+      unsubscribeUserPosts = getUserPosts(currentUser.uid, (posts) => {
+        setUserPosts(posts);
+      });
+    }
+    
+    return () => {
+      unsubscribePosts();
+      if (unsubscribeUserPosts) unsubscribeUserPosts();
+    };
+  }, [currentUser]);
+
 
   useEffect(() => {
     const results = allPosts.filter(post =>
@@ -55,7 +67,7 @@ export default function HomePage() {
 
   return (
     <PrivateRoute>
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
         {/* Left Sidebar */}
         <aside className="hidden lg:block lg:col-span-1 space-y-6">
           <Card>
@@ -89,7 +101,7 @@ export default function HomePage() {
         </aside>
 
         {/* Main Content */}
-        <main className="lg:col-span-2 space-y-6">
+        <main className="md:col-span-2 lg:col-span-2 space-y-6">
           <CreatePostForm user={displayUser} />
           <div className="space-y-6">
             {loading ? (
@@ -110,7 +122,7 @@ export default function HomePage() {
         </main>
 
         {/* Right Sidebar */}
-        <aside className="lg:col-span-1 space-y-6">
+        <aside className="hidden md:block lg:col-span-1 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Search</CardTitle>
