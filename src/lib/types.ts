@@ -1,3 +1,4 @@
+
 import { Timestamp } from "firebase/firestore";
 
 export type User = {
@@ -48,3 +49,12 @@ export type Conversation = {
   messages: Message[];
   lastMessage: Message | null;
 };
+
+export type Notification = {
+    id: string;
+    user: User;
+    content: string;
+    link?: string;
+    timestamp: string; // Using string for mock data simplicity
+    read: boolean;
+}

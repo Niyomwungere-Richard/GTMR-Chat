@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -29,6 +30,10 @@ export default function Header() {
     router.push('/login');
   };
 
+  // Dummy state for notifications
+  const hasUnreadMessages = true;
+  const hasNotifications = true;
+
   return (
     <header className="bg-card border-b sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -43,14 +48,18 @@ export default function Header() {
           {currentUser && (
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" asChild>
-                <Link href="/chat">
+                <Link href="/chat" className="relative">
                   <MessageSquare />
+                  {hasUnreadMessages && <span className="absolute top-1 right-1 flex h-2 w-2 rounded-full bg-red-500" />}
                   <span className="sr-only">Messages</span>
                 </Link>
               </Button>
-              <Button variant="ghost" size="icon">
-                <Bell />
-                <span className="sr-only">Notifications</span>
+              <Button variant="ghost" size="icon" asChild>
+                <Link href="/notifications" className="relative">
+                  <Bell />
+                  {hasNotifications && <span className="absolute top-1 right-1 flex h-2 w-2 rounded-full bg-red-500" />}
+                  <span className="sr-only">Notifications</span>
+                </Link>
               </Button>
 
               <DropdownMenu>

@@ -1,4 +1,5 @@
-import type { User, Post, Conversation } from './types';
+
+import type { User, Post, Conversation, Notification } from './types';
 
 export const mockUsers: User[] = [
   {
@@ -23,6 +24,12 @@ export const mockUsers: User[] = [
     id: "user-4",
     name: "Fatima Al-Fassi",
     handle: "fatima_af",
+    avatar: "https://placehold.co/100x100.png",
+  },
+   {
+    id: "user-5",
+    name: "Kenji Tanaka",
+    handle: "kenji_t",
     avatar: "https://placehold.co/100x100.png",
   },
 ];
@@ -87,5 +94,31 @@ export const mockConversations: Conversation[] = [
         messages: [
             { id: 'msg-6', sender: mockUsers[3], content: 'That pasta looked so good!', timestamp: '2 days ago'},
         ]
+    }
+]
+
+export const mockNotifications: Notification[] = [
+    {
+        id: 'notif-1',
+        user: mockUsers[2],
+        content: 'posted a new project update.',
+        link: '/',
+        timestamp: '2 hours ago',
+        read: false,
+    },
+    {
+        id: 'notif-2',
+        user: mockUsers[1],
+        content: 'liked your comment: "Wow, that looks amazing!"',
+        link: '/',
+        timestamp: '5 hours ago',
+        read: false,
+    },
+    {
+        id: 'notif-3',
+        user: mockUsers[4],
+        content: 'started following you.',
+        timestamp: '1 day ago',
+        read: true,
     }
 ]
