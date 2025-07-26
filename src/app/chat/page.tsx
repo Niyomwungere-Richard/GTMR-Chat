@@ -1,3 +1,4 @@
+import PrivateRoute from "@/components/auth/PrivateRoute";
 import { mockUsers, mockConversations } from "@/lib/data";
 import ConversationList from "@/components/chat/ConversationList";
 import ChatWindow from "@/components/chat/ChatWindow";
@@ -8,9 +9,11 @@ export default function ChatPage() {
   const firstConversation = mockConversations[0];
 
   return (
-    <Card className="h-[calc(100vh-10rem)] flex">
-        <ConversationList conversations={mockConversations} currentUser={currentUser} />
-        <ChatWindow conversation={firstConversation} currentUser={currentUser} />
-    </Card>
+    <PrivateRoute>
+      <Card className="h-[calc(100vh-10rem)] flex">
+          <ConversationList conversations={mockConversations} currentUser={currentUser} />
+          <ChatWindow conversation={firstConversation} currentUser={currentUser} />
+      </Card>
+    </PrivateRoute>
   );
 }
