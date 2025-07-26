@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export type User = {
   id: string;
   name: string;
@@ -9,7 +11,7 @@ export type Comment = {
   id: string;
   user: User;
   content: string;
-  timestamp: string;
+  timestamp: Timestamp;
 };
 
 export type Reaction = {
@@ -23,20 +25,23 @@ export type Post = {
   user: User;
   content: string;
   imageUrl?: string;
-  timestamp: string;
+  timestamp: string; // Keeping as string for mock, can be Timestamp for firestore
   comments: Comment[];
   reactions: Reaction[];
 };
 
 export type Message = {
   id: string;
-  sender: User;
+  senderId: string;
   content: string;
-  timestamp: string;
+  timestamp: Timestamp;
+  sender?: User; // Optional: populated after fetching
 };
 
 export type Conversation = {
   id: string;
-  participants: User[];
+  participants: string[]; // Array of user IDs
+  participantDetails: User[]; // Populated after fetching
   messages: Message[];
+  lastMessage: Message | null;
 };

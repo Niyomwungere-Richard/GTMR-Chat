@@ -5,18 +5,57 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import MessageBubble from "./MessageBubble";
 import { SendHorizonal, Phone, Video } from "lucide-react";
+import type { User as FirebaseUser } from "firebase/auth";
+import { useEffect, useRef, useState } from "react";
+import { getMessages, sendMessage } from "@/lib/firestoreService";
 
 type ChatWindowProps = {
-    conversation: Conversation;
-    currentUser: User;
+    conversation: Conversation | null;
+    currentUser: FirebaseUser;
+    appUsers: User[]; // Placeholder
 };
 
-export default function ChatWindow({ conversation, currentUser }: ChatWindowProps) {
-    const otherParticipant = conversation.participants.find(p => p.id !== currentUser.id);
+export default function ChatWindow({ conversation, currentUser, appUsers }: ChatWindowProps) {
+    const [messages, setMessages] = useState(conversation?.messages || []);
+    const [newMessage, setNewMessage] = useState("");
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-    if (!otherParticipant) {
+    useEffect(() => {
+        if (conversation) {
+            const unsubscribe = getMessages(conversation.id, (msgs) => {
+                const populatedMessages = msgs.map(m => ({
+                    ...m,
+                    sender: appUsers.find(u => u.id === m.senderId)
+                }))
+                setMessages(populatedMessages);
+            });
+            return () => unsubscribe();
+        }
+    }, [conversation, appUsers]);
+
+    useEffect(() => {
+        // Scroll to bottom when messages change
+        if (scrollAreaRef.current) {
+            scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight });
+        }
+    }, [messages]);
+
+    if (!conversation) {
         return <div className="flex-grow flex items-center justify-center text-muted-foreground">Select a conversation to start chatting.</div>
     }
+
+    const otherParticipant = conversation.participantDetails.find(p => p.id !== currentUser.uid);
+
+    if (!otherParticipant) {
+        return <div className="flex-grow flex items-center justify-center text-muted-foreground">Conversation details not found.</div>
+    }
+
+    const handleSendMessage = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newMessage.trim() === "" || !conversation) return;
+        await sendMessage(conversation.id, currentUser.uid, newMessage);
+        setNewMessage("");
+    };
 
     return (
         <div className="flex-grow flex flex-col h-full">
@@ -36,16 +75,21 @@ export default function ChatWindow({ conversation, currentUser }: ChatWindowProp
                     <Button variant="ghost" size="icon"><Video /></Button>
                 </div>
             </div>
-            <ScrollArea className="flex-grow p-4">
+            <ScrollArea className="flex-grow p-4" ref={scrollAreaRef as any}>
                 <div className="space-y-6">
-                    {conversation.messages.map(msg => (
+                    {messages.map(msg => (
                         <MessageBubble key={msg.id} message={msg} currentUser={currentUser} />
                     ))}
                 </div>
             </ScrollArea>
             <div className="p-4 border-t">
-                <form className="flex items-center gap-2">
-                    <Input placeholder="Type a message..." className="flex-grow" />
+                <form className="flex items-center gap-2" onSubmit={handleSendMessage}>
+                    <Input 
+                        placeholder="Type a message..." 
+                        className="flex-grow"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                    />
                     <Button type="submit" size="icon">
                         <SendHorizonal />
                         <span className="sr-only">Send</span>

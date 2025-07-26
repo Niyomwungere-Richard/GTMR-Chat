@@ -1,14 +1,16 @@
 import { cn } from "@/lib/utils";
-import type { Message, User } from "@/lib/types";
+import type { Message } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import type { User as FirebaseUser } from "firebase/auth";
 
 type MessageBubbleProps = {
   message: Message;
-  currentUser: User;
+  currentUser: FirebaseUser;
 };
 
 export default function MessageBubble({ message, currentUser }: MessageBubbleProps) {
-  const isCurrentUser = message.sender.id === currentUser.id;
+  const isCurrentUser = message.senderId === currentUser.uid;
+  const sender = message.sender;
 
   return (
     <div
@@ -17,10 +19,10 @@ export default function MessageBubble({ message, currentUser }: MessageBubblePro
         isCurrentUser ? "justify-end" : "justify-start"
       )}
     >
-      {!isCurrentUser && (
+      {!isCurrentUser && sender && (
         <Avatar className="h-8 w-8">
-          <AvatarImage src={message.sender.avatar} alt={message.sender.name} />
-          <AvatarFallback>{message.sender.name.charAt(0)}</AvatarFallback>
+          <AvatarImage src={sender.avatar} alt={sender.name} />
+          <AvatarFallback>{sender.name.charAt(0)}</AvatarFallback>
         </Avatar>
       )}
       <div
