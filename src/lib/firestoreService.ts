@@ -1,3 +1,4 @@
+
 import { db } from "./firebase";
 import {
   collection,
@@ -121,3 +122,27 @@ export const getPosts = (callback: (posts: Post[]) => void) => {
         callback(posts);
     });
 }
+
+export const getUserPosts = (userId: string, callback: (posts: Post[]) => void) => {
+    const q = query(collection(db, "posts"), where("userId", "==", userId), orderBy("timestamp", "desc"));
+
+    return onSnapshot(q, async (querySnapshot) => {
+        const posts: Post[] = [];
+        for (const doc of querySnapshot.docs) {
+            const data = doc.data();
+            const user = await getUserDetails(data.userId);
+
+            if (user) {
+                posts.push({
+                    id: doc.id,
+                    ...data,
+                    user: user,
+                    timestamp: data.timestamp,
+                    comments: [],
+                    reactions: []
+                } as Post);
+            }
+        }
+        callback(posts);
+    });
+};

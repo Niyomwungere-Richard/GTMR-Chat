@@ -1,3 +1,4 @@
+
 "use client";
 
 import PrivateRoute from "@/components/auth/PrivateRoute";
@@ -10,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Users, Home, User } from "lucide-react";
+import { MessageSquare, Users, Home, User, Search } from "lucide-react";
 import CreatePostForm from "@/components/CreatePostForm";
 import PostCard from "@/components/PostCard";
 import ContentSuggestions from "@/components/ContentSuggestions";
@@ -20,23 +21,36 @@ import { useEffect, useState } from "react";
 import { Post as PostType } from "@/lib/types";
 import { getPosts } from "@/lib/firestoreService";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 
 export default function HomePage() {
   const { currentUser } = useAuth();
-  const [posts, setPosts] = useState<PostType[]>([]);
+  const [allPosts, setAllPosts] = useState<PostType[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // This is a placeholder until we have real user profiles in Firestore
   const displayUser = mockUsers.find(u => u.id === currentUser?.uid) || mockUsers[0];
+  const userPosts = allPosts.filter(p => p.userId === currentUser?.uid);
 
   useEffect(() => {
     setLoading(true);
     const unsubscribe = getPosts((newPosts) => {
-      setPosts(newPosts);
+      setAllPosts(newPosts);
+      setFilteredPosts(newPosts);
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const results = allPosts.filter(post =>
+      post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredPosts(results);
+  }, [searchQuery, allPosts]);
 
 
   return (
@@ -85,16 +99,38 @@ export default function HomePage() {
                 <Skeleton className="h-40 w-full" />
               </>
             ) : (
-              posts.map((post) => (
+              filteredPosts.map((post) => (
                 <PostCard key={post.id} post={post} />
               ))
+            )}
+            {filteredPosts.length === 0 && !loading && (
+                <p className="text-center text-muted-foreground">No posts found.</p>
             )}
           </div>
         </main>
 
         {/* Right Sidebar */}
         <aside className="lg:col-span-1 space-y-6">
-          <ContentSuggestions />
+          <Card>
+            <CardHeader>
+              <CardTitle>Search</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search posts and users..." 
+                  className="pl-9" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+          <ContentSuggestions 
+            userId={currentUser?.uid}
+            userPosts={userPosts}
+          />
           <Card>
             <CardHeader>
               <CardTitle>Who to follow</CardTitle>

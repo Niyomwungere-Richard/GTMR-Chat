@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,16 +13,31 @@ import {
 import { getSuggestedContent } from "@/lib/actions";
 import { Wand2 } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
+import type { Post } from "@/lib/types";
 
-export default function ContentSuggestions() {
+type ContentSuggestionsProps = {
+  userId?: string;
+  userPosts: Post[];
+};
+
+export default function ContentSuggestions({ userId, userPosts }: ContentSuggestionsProps) {
   const [suggestion, setSuggestion] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSuggest = async () => {
+    if (!userId) {
+      setSuggestion("Please log in to get suggestions.");
+      return;
+    }
     setLoading(true);
     setSuggestion("");
-    const userActivity =
-      "The user has been browsing posts about 'React', 'Next.js', and 'AI'. They seem interested in web development and technology.";
+
+    let userActivity = "The user has not posted anything yet.";
+    if (userPosts.length > 0) {
+      const postContents = userPosts.map(p => p.content).join(", ");
+      userActivity = `The user has created posts about the following topics: ${postContents}. They also seem interested in web development and technology.`;
+    }
+    
     try {
       const result = await getSuggestedContent(userActivity);
       setSuggestion(result.suggestedContent);
@@ -42,7 +58,7 @@ export default function ContentSuggestions() {
         <CardDescription>AI-powered content suggestions.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Button onClick={handleSuggest} disabled={loading} className="w-full">
+        <Button onClick={handleSuggest} disabled={loading || !userId} className="w-full">
           {loading ? "Generating..." : "Suggest New Content"}
         </Button>
         {loading && (
