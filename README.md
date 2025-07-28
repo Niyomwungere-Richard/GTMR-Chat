@@ -1,2 +1,5 @@
-# GTMR-Chat
-Un application de messagerie utiliser par les etudiants de GTMR BAC 3 a l'
+# Firebase Studio
+
+This is a NextJS starter in Firebase Studio.
+
+To get started, take a look at src/app/page.tsx.
